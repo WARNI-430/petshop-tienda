@@ -1,0 +1,25 @@
+{
+  "nav": {
+    "catalog": "Catálogo",
+    "cart": "Carrito"
+  },
+  "home": {
+    "hero_title": "Lo mejor para tu mascota",
+    "hero_subtitle": "Productos seleccionados, entrega en 3–7 días.",
+    "cta": "Ver catálogo"
+  },
+  "product": {
+    "add_to_cart": "Añadir al carrito",
+    "out_of_stock": "Sin stock"
+  },
+  "cart": {
+    "title": "Tu carrito",
+    "empty": "Tu carrito está vacío.",
+    "checkout": "Pagar"
+  },
+  "footer": {
+    "legal": "Aviso legal",
+    "privacy": "Privacidad",
+    "returns": "Devoluciones"
+  }
+}
