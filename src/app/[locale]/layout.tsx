@@ -1,3 +1,4 @@
+import "@/app/globals.css";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
 import { notFound } from "next/navigation";
@@ -18,12 +19,11 @@ export default async function LocaleLayout({
 }) {
   const { locale } = await params;
   if (!routing.locales.includes(locale as "es" | "en")) notFound();
-
   const messages = await getMessages();
 
   return (
     <html lang={locale}>
-      <body className="min-h-screen flex flex-col bg-white text-gray-900 antialiased">
+      <body className="min-h-screen flex flex-col bg-[#0a0a0f] text-white antialiased">
         <NextIntlClientProvider messages={messages}>
           <Navbar />
           <main className="flex-1">{children}</main>

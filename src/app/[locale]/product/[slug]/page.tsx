@@ -20,17 +20,17 @@ export default async function ProductPage({
   const mainImage = product.images[0] ?? "/placeholder.png";
 
   return (
-    <div className="max-w-5xl mx-auto px-4 py-12">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-        {/* Imágenes */}
-        <div className="space-y-4">
-          <div className="relative aspect-square rounded-xl overflow-hidden bg-gray-50">
+    <div className="max-w-5xl mx-auto px-6 py-14">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-14">
+        {/* Image */}
+        <div className="space-y-3">
+          <div className="relative aspect-square rounded-2xl overflow-hidden bg-white/[0.03] border border-white/[0.06]">
             <Image src={mainImage} alt={name} fill className="object-cover" sizes="(max-width: 768px) 100vw, 50vw" />
           </div>
           {product.images.length > 1 && (
-            <div className="flex gap-3 overflow-x-auto pb-2">
+            <div className="flex gap-2 overflow-x-auto pb-1">
               {product.images.map((img, i) => (
-                <div key={i} className="relative w-20 h-20 shrink-0 rounded-lg overflow-hidden bg-gray-50">
+                <div key={i} className="relative w-20 h-20 shrink-0 rounded-xl overflow-hidden bg-white/[0.03] border border-white/[0.06]">
                   <Image src={img} alt={`${name} ${i + 1}`} fill className="object-cover" sizes="80px" />
                 </div>
               ))}
@@ -40,26 +40,40 @@ export default async function ProductPage({
 
         {/* Info */}
         <div className="flex flex-col">
-          <h1 className="text-3xl font-bold mb-4">{name}</h1>
-          <p className="text-4xl font-bold mb-6">{product.price.toFixed(2)} €</p>
-          <p className="text-gray-600 leading-relaxed mb-8">{desc}</p>
+          <h1 className="text-3xl font-bold text-white mb-3 leading-tight">{name}</h1>
+          <p className="text-4xl font-bold text-white mb-2 tabular-nums">{product.price.toFixed(2)} €</p>
 
-          <div className="flex items-center gap-4">
+          {product.stock > 0 ? (
+            <span className="inline-flex items-center gap-1.5 text-xs text-emerald-400 mb-8">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+              {locale === "es" ? "En stock" : "In stock"}
+            </span>
+          ) : (
+            <span className="inline-flex items-center gap-1.5 text-xs text-red-400 mb-8">
+              <span className="w-1.5 h-1.5 rounded-full bg-red-400" />
+              {locale === "es" ? "Sin stock" : "Out of stock"}
+            </span>
+          )}
+
+          {desc && <p className="text-white/40 leading-relaxed mb-8 text-sm">{desc}</p>}
+
+          {/* Add to cart */}
+          <div className="mb-10">
             <AddToCartButton product={product} locale={locale} />
-            {product.stock > 0 ? (
-              <span className="text-sm text-green-600">
-                {locale === "es" ? "En stock" : "In stock"}
-              </span>
-            ) : (
-              <span className="text-sm text-red-500">
-                {locale === "es" ? "Sin stock" : "Out of stock"}
-              </span>
-            )}
           </div>
 
-          <div className="mt-8 pt-8 border-t border-gray-200 text-sm text-gray-500 space-y-1">
-            <p>🚚 {locale === "es" ? "Entrega en 3–7 días" : "Delivery in 3–7 days"}</p>
-            <p>↩️ {locale === "es" ? "Devoluciones en 14 días" : "14-day returns"}</p>
+          {/* Trust */}
+          <div className="border-t border-white/[0.06] pt-6 space-y-3">
+            {[
+              { icon: "🚚", text: locale === "es" ? "Entrega en 3–7 días" : "Delivery in 3–7 days" },
+              { icon: "🔒", text: locale === "es" ? "Pago 100% seguro con Stripe" : "100% secure payment with Stripe" },
+              { icon: "↩️", text: locale === "es" ? "Devoluciones en 14 días" : "14-day returns" },
+            ].map((item) => (
+              <div key={item.text} className="flex items-center gap-3 text-sm text-white/35">
+                <span className="text-base">{item.icon}</span>
+                {item.text}
+              </div>
+            ))}
           </div>
         </div>
       </div>

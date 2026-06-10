@@ -14,8 +14,10 @@ async function getToken(): Promise<string> {
     body: JSON.stringify({ email: env.CJ_API_EMAIL, password: env.CJ_API_TOKEN }),
   });
 
-  const data = await res.json();
-  if (!data.result) throw new Error(`CJ auth failed: ${data.message}`);
+  const text = await res.text();
+  console.log("[CJ getToken] raw response:", text.slice(0, 500));
+  const data = JSON.parse(text);
+  if (!data.result) throw new Error(`CJ auth failed: ${data.message} (code: ${data.code})`);
 
   accessToken = data.data.accessToken as string;
   // tokens expire in 30 days; refresh every 29 days
@@ -33,5 +35,10 @@ export async function cjFetch(path: string, options: RequestInit = {}) {
       ...(options.headers ?? {}),
     },
   });
-  return res.json();
+  const text = await res.text();
+  try {
+    return JSON.parse(text);
+  } catch {
+    throw new Error(`CJ returned non-JSON (${res.status}): ${text.slice(0, 200)}`);
+  }
 }

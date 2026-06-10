@@ -13,26 +13,26 @@ export default function ProductCard({ product, locale }: Props) {
   const image = product.images[0] ?? "/placeholder.png";
 
   return (
-    <div className="group bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-lg transition">
+    <div className="group rounded-2xl border border-white/[0.06] bg-white/[0.02] overflow-hidden hover:border-white/[0.12] hover:bg-white/[0.04] transition-all duration-300">
       <Link href={`/${locale}/product/${product.slug}`}>
-        <div className="relative aspect-square bg-gray-50">
+        <div className="relative aspect-square bg-white/[0.03] overflow-hidden">
           <Image
             src={image}
             alt={name}
             fill
-            className="object-cover group-hover:scale-105 transition duration-300"
+            className="object-cover group-hover:scale-105 transition-transform duration-500"
             sizes="(max-width: 640px) 50vw, 25vw"
           />
         </div>
       </Link>
       <div className="p-4">
         <Link href={`/${locale}/product/${product.slug}`}>
-          <h3 className="font-medium text-sm leading-tight mb-2 hover:underline line-clamp-2">
+          <h3 className="font-medium text-sm text-white/75 leading-snug mb-3 line-clamp-2 hover:text-white transition-colors">
             {name}
           </h3>
         </Link>
         <div className="flex items-center justify-between">
-          <span className="font-bold text-lg">{product.price.toFixed(2)} €</span>
+          <span className="font-bold text-white tabular-nums">{product.price.toFixed(2)} €</span>
           <AddToCartButton product={product} locale={locale} />
         </div>
       </div>

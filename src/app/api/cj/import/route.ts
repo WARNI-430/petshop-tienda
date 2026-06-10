@@ -5,11 +5,15 @@ import { z } from "zod";
 
 const bodySchema = z.object({
   cjProductId: z.string(),
-  price: z.number().positive(),          // precio de venta que tú decides
+  price: z.number().positive(),
   nameEs: z.string().optional(),
   nameEn: z.string().optional(),
   descEs: z.string().optional(),
   descEn: z.string().optional(),
+  costPrice: z.number().optional(),
+  imageUrl: z.string().optional(),
+  stock: z.number().optional(),
+  skipCjFetch: z.boolean().optional(),
 });
 
 function slugify(text: string) {
@@ -21,8 +25,10 @@ function slugify(text: string) {
 }
 
 export async function POST(req: NextRequest) {
-  // Proteger con ADMIN_SECRET
-  if (req.headers.get("x-admin-secret") !== process.env.ADMIN_SECRET) {
+  // Proteger: acepta header x-admin-secret O cookie admin_auth
+  const headerSecret = req.headers.get("x-admin-secret");
+  const cookieSecret = req.cookies.get("admin_auth")?.value;
+  if (headerSecret !== process.env.ADMIN_SECRET && cookieSecret !== process.env.ADMIN_SECRET) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -32,22 +38,34 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Invalid request" }, { status: 400 });
   }
 
-  const { cjProductId, price, nameEs, nameEn, descEs, descEn } = parsed.data;
+  const { cjProductId, price, nameEs, nameEn, descEs, descEn, costPrice: manualCost, imageUrl, stock: manualStock, skipCjFetch } = parsed.data;
 
-  // Obtener detalles del producto en CJ
-  const data = await cjFetch(`/product/query?pid=${cjProductId}`);
-  if (!data.result || !data.data) {
-    return NextResponse.json({ error: "Product not found in CJ" }, { status: 404 });
+  let productNameEn = nameEn ?? "Product";
+  let productNameEs = nameEs ?? productNameEn;
+  let productDescEn = descEn ?? "";
+  let productDescEs = descEs ?? "";
+  let images: string[] = imageUrl ? [imageUrl] : [];
+  let costPrice: number = manualCost ?? 0;
+  let stock = manualStock ?? 99;
+
+  // Try CJ API fetch unless skipped
+  if (!skipCjFetch) {
+    try {
+      const data = await cjFetch(`/product/query?pid=${cjProductId}`);
+      if (data.result && data.data) {
+        const cj = data.data;
+        productNameEn = nameEn ?? cj.productNameEn ?? cj.productName ?? "Product";
+        productNameEs = nameEs ?? productNameEn;
+        productDescEn = descEn ?? cj.productUnit ?? "";
+        productDescEs = descEs ?? productDescEn;
+        images = (cj.productImageSet ?? "").split(",").filter(Boolean).slice(0, 5);
+        costPrice = parseFloat(cj.sellPrice ?? cj.productPrice ?? "0");
+        stock = parseInt(cj.productStock ?? "99");
+      }
+    } catch {
+      // CJ API unavailable — use manual data provided
+    }
   }
-
-  const cj = data.data;
-  const productNameEn = nameEn ?? cj.productNameEn ?? cj.productName ?? "Product";
-  const productNameEs = nameEs ?? productNameEn;
-  const productDescEn = descEn ?? cj.productUnit ?? "";
-  const productDescEs = descEs ?? productDescEn;
-
-  const images: string[] = (cj.productImageSet ?? "").split(",").filter(Boolean).slice(0, 5);
-  const costPrice: number = parseFloat(cj.sellPrice ?? cj.productPrice ?? "0");
 
   const slug = slugify(productNameEn) + "-" + cjProductId.slice(-6);
 
@@ -63,12 +81,12 @@ export async function POST(req: NextRequest) {
       images,
       price,
       costPrice,
-      stock: parseInt(cj.productStock ?? "99"),
+      stock,
       active: true,
     },
     update: {
       costPrice,
-      stock: parseInt(cj.productStock ?? "99"),
+      stock,
       images,
     },
   });
