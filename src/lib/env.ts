@@ -8,8 +8,8 @@ const envSchema = z.object({
   STRIPE_WEBHOOK_SECRET: z.string().min(1),
   CJ_API_EMAIL: z.string().email(),
   CJ_API_TOKEN: z.string().min(1),
-  RESEND_API_KEY: z.string().min(1),
-  RESEND_FROM: z.string().min(1),
+  RESEND_API_KEY: z.string().optional().default(""),
+  RESEND_FROM: z.string().optional().default("noreply@mitienda.com"),
   NEXT_PUBLIC_APP_URL: z.string().url(),
   ADMIN_SECRET: z.string().min(1),
 });
