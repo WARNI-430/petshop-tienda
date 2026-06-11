@@ -23,7 +23,7 @@ export default async function LocaleLayout({
 
   return (
     <html lang={locale}>
-      <body className="min-h-screen flex flex-col bg-[#0a0a0f] text-white antialiased">
+      <body className="min-h-screen flex flex-col bg-[#07070f] text-white antialiased">
         <NextIntlClientProvider messages={messages}>
           <Navbar />
           <main className="flex-1">{children}</main>
